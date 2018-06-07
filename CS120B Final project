@@ -1,0 +1,696 @@
+/*
+ * FinalProject.c
+ *
+ * Created: 6/5/2018 8:21:44 PM
+ * Author : Johnny
+ */ 
+#define F_CPU 1000000
+
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#include <avr/interrupt.h>
+#include <stdio.h>
+#include "timer.c"
+#include "io.c"
+#include "Nokia5110.c "
+#include "stdlib.h"
+#include "stdio.h"
+#include "string.h"
+#include "ADC.c"
+
+
+typedef struct _task{
+	signed char state;
+	unsigned long period;
+	unsigned long int elapsedTime;
+	int(*TaskFct) (int);
+} task;
+
+typedef struct _newHigh{
+	unsigned char high;
+}newHigh;
+
+signed char j = 40;	//starting position of character (x)
+signed char k = 20;		//starting position of character (y)
+unsigned char moving = 0;
+unsigned short myTime = 0;
+unsigned long int ex = 0;
+unsigned long int why = 0;
+unsigned long int a = 0;
+unsigned long int b = 0;
+unsigned long int c = 0;
+unsigned long int d = 0;
+unsigned long int e = 0;
+unsigned long int f = 0;
+unsigned long int g = 0;
+unsigned long int h = 0;
+unsigned long int l = 0;
+unsigned long int m = 0;
+unsigned long int n = 0;
+unsigned long int o = 0;
+unsigned long int p = 0;
+unsigned long int q = 0;
+unsigned long int r = 0;
+unsigned long int s = 0;
+unsigned long int t = 0;
+unsigned long int me = 0;
+unsigned long int te = 0;
+unsigned long int re = 0;
+unsigned long int be = 0;
+unsigned long int pu = 0;
+unsigned long int up = 0;
+unsigned long int yay = 0;
+unsigned long int you = 0;
+unsigned long int yy = 0;
+unsigned long int bm = 0;
+unsigned long int u = 0;
+unsigned long int winCount = 0;
+unsigned char level1 = 0;
+unsigned char level1pass = 0;
+unsigned int scoreCount = 0;
+unsigned int topCount = 0;
+unsigned char dest[100];
+unsigned char currScore[100];
+unsigned char topString[10];
+unsigned char topScore[100];
+unsigned char game_over = 0;
+unsigned char game_win = 0;
+unsigned char thisTime = 0;
+newHigh Score;
+
+int16_t LR, UD;
+
+enum states1 {init, movement} state1;
+int SM_attack(int state){
+	switch (state){
+		case init:
+		state = movement;
+		break;
+		
+		case movement:
+		if(LR > 100 && j < 78){
+			scoreCount++;
+			j++;
+			moving = 1;
+			state = movement;
+		}
+		if(LR < -100 && j > 0){
+			scoreCount++;
+			j--;
+			moving = 1;
+			state = movement;
+		}
+		if(UD > 100 && k < 40){
+			scoreCount++;
+			k++;
+			moving = 1;
+			state = movement;
+		}
+		if(UD < -100 && k > 0){
+			scoreCount++;
+			k--;
+			moving = 1;
+			state = movement;
+		}
+		break;
+		
+		default:
+		state = init;
+		break;
+		
+	}
+	return state;
+}
+
+enum states2 {init1, walls, walls2, display, tooeasy, display2, win, over, reset} state2;
+int SM_star(int state){
+	switch(state){
+		
+		case init1:
+		state = init1;
+		if(moving == 1){
+			state = walls;
+		}
+		break;
+		
+		case walls:
+		if(moving == 1){
+			state = display;
+		}
+		else{
+			state = walls;
+		}
+		break;
+		
+		/*case walls2:
+		if(moving == 1){
+			state = display2;
+		}
+		else{
+			state = walls2;
+		}
+		break;*/
+		
+		case display:
+		if(moving == 1){
+			state = display;
+		}
+		
+		if(game_win == 1){
+			state = win;
+		}
+		
+		if(game_over == 1){
+			state = over;
+		}
+		
+		if(level1 == 1){
+			state = tooeasy;
+		}
+		
+		
+		break;
+		
+		case tooeasy:
+		if(thisTime < 120){
+			state = tooeasy;
+		}
+		else if(thisTime > 120){
+			state = display;
+		}
+		break;
+		
+		/*case display2:
+		if(moving == 1){
+			state = display2;
+		}
+		
+		if(game_over == 1){
+			state = over;
+		}
+		
+		break;*/
+		
+		case win:
+		if(winCount < 50){
+			state = win;
+		}
+		else if(winCount > 50){
+			state = reset;
+		}
+		break;
+		
+		case reset:
+		myTime = 0;
+		state = init1;
+		break;
+		
+		case over: 
+		state = over;
+		break;
+	}
+		
+	switch(state){
+		case init1:
+		LCD_DisplayString(1, "Welcome to Dodge WAll!!");
+		nokia_lcd_clear();
+		nokia_lcd_write_string("  DODGE WALL", 1);
+		nokia_lcd_set_cursor(0, 10);
+		nokia_lcd_write_string("$$$$$$$$$$$$$$", 1);
+		nokia_lcd_set_cursor(0, 20);
+		nokia_lcd_write_string("Press to begin", 1);
+		nokia_lcd_set_cursor(0, 30);
+		nokia_lcd_write_string("$$$$$$$$$$$$$$", 1);
+		nokia_lcd_set_cursor(0, 40);
+		nokia_lcd_write_string("$$$$$$$$$$$$$$", 1);
+		nokia_lcd_render();
+		break;
+		
+		case walls:
+		nokia_lcd_set_cursor(ex,why);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(a,b);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(c,d);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(e,f);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(g,h);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(l,m);
+		nokia_lcd_set_cursor(n,o);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(p,q);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(r,s);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(t,u);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(me,te);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(re,be);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(pu,up);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(yay, you);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(yy, bm);
+		nokia_lcd_write_string("", 1);
+		break;
+		
+		case display:
+		if(moving == 1){
+		Score.high = 200;
+		if(scoreCount > Score.high){
+			itoa(scoreCount, currScore, 10);
+			strcpy(dest, "Score:");
+			strcat(dest, currScore);
+			strcpy(topString, "Top:");
+			strcat(dest, topString);
+			topCount = scoreCount;
+			itoa(topCount, topScore, 10);
+			strcat(dest, topScore);
+			LCD_DisplayString(1, dest);
+		}
+		else if(!(scoreCount > Score.high)){
+			itoa(scoreCount, currScore, 10);
+			strcpy(dest, "Score:");
+			strcat(dest, currScore);
+			strcpy(topString, "        Top:");
+			strcat(dest, topString);
+			itoa(Score.high, topScore, 10);
+			strcat(dest, topScore);
+			LCD_DisplayString(1, dest);
+		}
+		nokia_lcd_clear();
+		nokia_lcd_set_cursor(j,k);
+		nokia_lcd_write_char('$',1);
+		myTime++;
+		
+		if((myTime > 50) && why < 47){
+			nokia_lcd_set_cursor(ex,why);
+			nokia_lcd_write_string(" =    =", 1);
+			why += 1;
+			if ((j >= 2 && j <= 11) || (j >= 33 && j <= 42)){
+				if((k - 2 == why) || (k + 2 == why)){
+					game_over = 1;
+				}
+		}
+		}
+		if((myTime > 80) && (b < 47)){
+			nokia_lcd_set_cursor(a, b);
+			nokia_lcd_write_string("  =    =", 1);
+			b += 1;
+			if ((j >= 7 && j <= 16) || (j >= 38 && j <= 47)){
+				if((k - 2 == b) || (k + 2 == b)){
+					game_over = 1;
+				}
+			}
+		}
+		if((myTime > 110) && (d < 47)){
+			nokia_lcd_set_cursor(c, d);
+			nokia_lcd_write_string("===        ===", 1);
+			d += 1;
+			if (j <= 16 || j >= 62){
+				if((k - 2 == d) || (k + 2 == d)){
+					game_over = 1;
+				}
+			}
+		}
+		if((myTime > 140) && (f < 47)){
+			nokia_lcd_set_cursor(e, f);
+			nokia_lcd_write_string("   ========", 1);
+			f += 1;
+			if (j >= 16 && j <= 62){
+				if((k - 2 == f) || (k + 2 == f)){
+					game_over = 1;
+				}
+			}
+		}
+		if((myTime > 170) && (h < 47)){
+			nokia_lcd_set_cursor(g, h);
+			nokia_lcd_write_string("  =    =", 1);
+			h += 1;
+			if ((j >= 7 && j <= 16) || (j >= 38 && j <= 47)){
+				if((k - 2 == h) || (k + 2 == h)){
+					game_over = 1;
+				}
+			}
+		}
+
+		if(!(myTime > 230 && myTime < 290)){
+			level1 = 0;
+		}
+		if(myTime > 230 && myTime < 290){
+			level1pass = 1;
+			level1 = 1;
+			thisTime++;
+		}
+		
+		if((myTime > 330) && (m < 47)){
+			nokia_lcd_set_cursor(l, m);
+			nokia_lcd_write_string("======  ======", 1);
+			m += 1;
+			if (j <= 30  && j >= 47){
+				if((k - 2 == m) || (k + 2 == m)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 360) && (o < 47)){
+			nokia_lcd_set_cursor(n, o);
+			nokia_lcd_write_string("===    =   ===", 1);
+			o += 1;
+			if ((j <= 16) || (j >= 38 && j <= 47) || (j >= 62)){
+				if((k - 2 == o) || (k + 2 == o)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 380) && (q < 47)){
+			nokia_lcd_set_cursor(p, q);
+			nokia_lcd_write_string("   ===  ==    ", 1);
+			q += 1;
+			if ((j >= 16 && j <= 30) || (j >= 50 && j <= 62)){
+				if((k - 2 == q) || (k + 2 == q)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 400) && (u < 47)){
+			nokia_lcd_set_cursor(t, u);
+			nokia_lcd_write_string("===        ===", 1);
+			u += 1;
+			if (j <= 16 || j >= 62){
+				if((k - 2 == u) || (k + 2 == u)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 420) && (s < 47)){
+			nokia_lcd_set_cursor(r, s);
+			nokia_lcd_write_string("   ===  ==", 1);
+			s += 1;
+			if ((j >= 16 && j <= 30) || (j >= 50 && j <= 62)){
+				if((k - 2 == s) || (k + 2 == s)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 440) && (bm < 47)){
+			nokia_lcd_set_cursor(yy, bm);
+			nokia_lcd_write_string("===    =   ===", 1);
+			bm += 1;
+			if ((j <= 16) || (j >= 38 && j <= 47) || (j >= 62)){
+				if((k - 2 == bm) || (k + 2 == bm)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 480) && (te < 47)){
+			nokia_lcd_set_cursor(me, te);
+			nokia_lcd_write_string("=========", 1);
+			te += 1;
+			if (j <= 47){
+				if((k - 2 == te) || (k + 2 == te)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 530) && (be < 47)){
+			nokia_lcd_set_cursor(re, be);
+			nokia_lcd_write_string("     =========", 1);
+			be += 1;
+			if (j >= 30){
+				if((k - 2 == be) || (k + 2 == be)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 570) && (up < 47)){
+			nokia_lcd_set_cursor(pu, up);
+			nokia_lcd_write_string("======  ======", 1);
+			up += 1;
+			if (j <= 30  && j >= 47){
+				if((k - 2 == up) || (k + 2 == up)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		if((myTime > 610) && (you < 47)){
+			nokia_lcd_set_cursor(yay, you);
+			nokia_lcd_write_string("     ^_^      ", 1);
+			you += 1;
+			if (j >= 30 && j <= 47){
+				if((k - 3 == you) || (k + 3 == you)){
+					game_win = 1;
+				}
+			}
+		}
+		if(myTime > 700){
+			winCount++;
+		}
+		nokia_lcd_render();
+		Score.high = topCount;
+		state = display;
+		}
+		else{
+			state = walls;
+		}
+		break;
+		
+		case tooeasy:
+		nokia_lcd_clear();
+		nokia_lcd_set_cursor(0,10);
+		nokia_lcd_write_string("  Too easy!!  ", 1);
+		nokia_lcd_set_cursor(0,20);
+		nokia_lcd_write_string("  Try this!!  " , 1);
+		nokia_lcd_render();
+		thisTime++;
+		break;
+		
+		/*case display2:
+		if(scoreCount > Score.high){
+			itoa(scoreCount, currScore, 10);
+			strcpy(dest, "Score:");
+			strcat(dest, currScore);
+			strcpy(topString, "Top:");
+			strcat(dest, topString);
+			topCount = scoreCount;
+			itoa(topCount, topScore, 10);
+			strcat(dest, topScore);
+			strcpy(livesString, "     Lives:");
+			strcat(dest, livesString);
+			LCD_DisplayString(1, dest);
+		}
+		else if(!(scoreCount > Score.high)){
+			itoa(scoreCount, currScore, 10);
+			strcpy(dest, "Score:");
+			strcat(dest, currScore);
+			strcpy(topString, "Top:");
+			strcat(dest, topString);
+			itoa(Score.high, topScore, 10);
+			strcat(dest, topScore);
+			strcpy(livesString, "     Lives:");
+			strcat(dest, livesString);
+			LCD_DisplayString(1, dest);
+		}
+		nokia_lcd_clear();
+		nokia_lcd_set_cursor(j,k);
+		nokia_lcd_write_char('$',1);
+		myTime++;
+		
+		if((myTime > 330) && (h < 47)){
+			nokia_lcd_set_cursor(g, h);
+			nokia_lcd_write_string("======  ======", 1);
+			h += 1;
+			if (j >= 30  && j <= 47){
+				if((k - 2 == h) || (k + 2 == h)){
+					game_over = 1;
+				}
+			}
+		}
+		
+		nokia_lcd_render();
+		Score.high = topCount;
+		break;*/
+		
+		case win:
+		nokia_lcd_clear();
+		nokia_lcd_write_string("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&You Win!!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&", 1);
+		nokia_lcd_render();
+		break;
+		
+		case over:
+		nokia_lcd_clear();
+		nokia_lcd_set_cursor(0,10);
+		nokia_lcd_write_string("  You lose :(  ", 1);
+		nokia_lcd_set_cursor(0,20);
+		nokia_lcd_write_string("  Try again!  " , 1);
+		nokia_lcd_render();
+		break;
+		
+		}
+		return state;
+	};
+	
+/*enum states3 {init2, create, move} state3;
+int SM_wall(int state){
+	switch(state){
+		
+		case init2:
+		if(moving == 1){
+			state = create;
+		}
+		else{
+			state = init;
+		}
+		break;
+		
+		case create:
+		nokia_lcd_set_cursor(ex,why);
+		nokia_lcd_write_string("", 1);
+		nokia_lcd_set_cursor(a,b);
+		nokia_lcd_write_string("", 1);
+		state = move;
+		break;
+		
+		case move:
+		myTime++;
+		if ((myTime > 1) && (why < 47)){
+			nokia_lcd_set_cursor(ex, why);
+			why += 1;
+		}
+		if((myTime > 13) && (b < 47)){
+			nokia_lcd_set_cursor(a, b);
+			b += 1;
+		}
+		state = create;
+		break;
+		
+		default:
+		break;
+	}
+	return state;	
+	
+	};*/
+
+/*enum states4 {init3, collide, status} state4;
+int SM_collision(int state){
+	switch(state){
+	
+		case init3:	
+			if(moving == 1){
+			state = collide;
+			}
+			else{
+				state = init3;
+			}
+			break;
+			
+		case collide:
+			if(j == 10){
+				//if(k == why){
+					game_over = 1;
+					state = status;
+				//}
+			}
+			else{
+				state = collide;
+			}
+			break;
+		
+		case status:
+			state = status;
+		}
+	return state;
+};*/
+
+int main(void)
+{
+    DDRA = 0x00; PORTA = 0xFF;
+    DDRB = 0xFF; PORTB = 0x00;
+    DDRC = 0xFF; PORTC = 0x00;
+    DDRD = 0xFF; PORTD = 0x00;
+    
+	unsigned long int tasksPeriodGCD;
+	unsigned long int attack_calc = 100;
+	unsigned long int star_calc = 500;
+	//unsigned long int wall_calc = 500;
+	//unsigned long int collision_calc = 500;
+	
+
+	unsigned long int tempGCD = 1;
+	tempGCD = findGCD(attack_calc, star_calc);
+	
+	tasksPeriodGCD = tempGCD;
+	
+	unsigned long int attack_period = attack_calc / tasksPeriodGCD;
+	unsigned long int star_period = star_calc / tasksPeriodGCD;
+	//unsigned long int wall_period = wall_calc / tasksPeriodGCD;
+	//unsigned long int collision_period = collision_calc / tasksPeriodGCD;
+	
+	static task attack, star;
+	task *tasks[] = {&attack, &star};
+	const unsigned short tasksNum = sizeof(tasks)/sizeof(task*);
+	
+	attack.state = init;
+	attack.period = attack_period;
+	attack.elapsedTime = attack_period;
+	attack.TaskFct = &SM_attack;
+	
+	star.state = init1;
+	star.period = star_period;
+	star.elapsedTime = star_period;
+	star.TaskFct = &SM_star; 
+	
+	/*wall.state = init2;
+	wall.period = 50;
+	wall.elapsedTime = 50;
+	wall.TaskFct = &SM_wall;*/
+	
+	/*collision.state = init3;
+	collision.period = collision_period;
+	collision.elapsedTime = collision_period;
+	collision.TaskFct = &SM_collision;*/
+	
+	TimerSet(50);
+	TimerOn();
+	LCD_init();
+	ADC_init();
+	nokia_lcd_init();
+	
+	
+	unsigned char i = 0;
+    while (1) 
+    {
+		LR = ReadADC(0);
+		UD = ReadADC(1);
+		
+		LR = LR - 515;
+		UD = UD - 515;
+		
+		for(i = 0; i < tasksNum; i++){
+			if(tasks[i]->elapsedTime >= tasks[i]->period){
+				tasks[i]->state = tasks[i]->TaskFct(tasks[i]->state);
+				tasks[i]->elapsedTime = 0;
+			}
+			tasks[i]->elapsedTime += tasksPeriodGCD;
+		}
+		while(!TimerFlag){
+			TimerFlag = 0;
+		}
+    }
+	return 0;
+}
+
